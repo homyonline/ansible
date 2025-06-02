@@ -1,0 +1,25 @@
+---
+- name: Configure Loopback Interfaces on Routers
+  hosts: routers
+  gather_facts: no
+  vars_files:
+    - vars/loopbacks.yml
+
+  tasks:
+    - name: Set loopback variables for current host
+      set_fact:
+        lo_number: "{{ loopbacks[inventory_hostname].lo_number }}"
+        ip_address: "{{ loopbacks[inventory_hostname].ip_address }}"
+        mask: "{{ loopbacks[inventory_hostname].mask }}"
+
+    - name: Configure loopback interface
+      ios_config:
+        lines:
+          - interface Loopback{{ lo_number }}
+          - ip address {{ ip_address }} {{ mask }}
+        provider:
+          host: "{{ ansible_host }}"
+          username: cisco
+          password: cisco
+          authorize: yes
+          auth_pass: cisco
